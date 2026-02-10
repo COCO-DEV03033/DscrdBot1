@@ -1,0 +1,22 @@
+{
+  "server": "Terra Regis== NA== Low Rules | Storage |",
+  "players": [
+    {
+      "PlayerID": "76561197978399344",
+      "Ping": 267,
+      "Class": "BP_Tyrannosaurus_C",
+      "X": 70061.0,
+      "Y": -42696.0,
+      "Z": 36064.0,
+      "Growth": 1,
+      "HP": 0.8,
+      "Hunger": 0.9,
+      "Thirst": 0.9,
+      "Stamina": 0.8,
+      "Gender": "0",
+      "GroupID": "1457920400",
+      "IsPrimeElder": false,
+      "ElderStack": 0
+    }
+  ]
+}
