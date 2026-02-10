@@ -1,0 +1,31 @@
+{
+  "name": "v2",
+  "version": "1.0.0",
+  "description": "This is discord bot for Isel Gaming server.",
+  "keywords": [
+    "Bot",
+    "Discord",
+    "Discord-bot",
+    "node.js",
+    "Server",
+    "Curl"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "MscrdBot"
+  },
+  "license": "ISC",
+  "author": "Dragan Milicevic",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "deploy": "node deploy-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.5",
+    "nodemon": "^3.1.11"
+  }
+}
