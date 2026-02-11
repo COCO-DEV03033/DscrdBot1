@@ -100,35 +100,35 @@ module.exports = {
 
       // Show progress (users hate waiting without feedback)
       await interaction.editReply(
-        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(1, 4)}`, { embeds: [loadingEmbed] }
+        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(1, 5)}`, { embeds: [loadingEmbed] }
       );
 
       await setGrowth(steamId, g1);
       await sleep(delayMs);
 
       await interaction.editReply(
-        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(2, 4)}`, { embeds: [loadingEmbed] }
+        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(2, 5)}`, { embeds: [loadingEmbed] }
       );
 
       await setGrowth(steamId, g2);
       await sleep(delayMs);
 
       await interaction.editReply(
-        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(3, 4)}`, { embeds: [loadingEmbed] }
+        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(3, 5)}`, { embeds: [loadingEmbed] }
       );
 
       await setGrowth(steamId, g2);
       await sleep(delayMs);
 
       await interaction.editReply(
-        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(4, 4)}`, { embeds: [loadingEmbed] }
+        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(4, 5)}`, { embeds: [loadingEmbed] }
       );
 
       await setVitalsFull(steamId);
       await sleep(delayMs);
 
       await interaction.editReply(
-        `✅ **${stored.name} restored!** 🧬\n⏳ ${progressBar(5, 4)}`
+        `✅ **${stored.name} restored!** 🧬\n⏳ ${progressBar(5, 5)}`
       );
       await setVitalsFull(steamId);
 
