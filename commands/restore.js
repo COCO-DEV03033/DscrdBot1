@@ -116,19 +116,19 @@ module.exports = {
       await interaction.editReply(
         `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(3, 4)}`, { embeds: [loadingEmbed] }
       );
-      
+
       await setGrowth(steamId, g2);
       await sleep(delayMs);
 
       await interaction.editReply(
-        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(3, 4)}`, { embeds: [loadingEmbed] }
+        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(4, 4)}`, { embeds: [loadingEmbed] }
       );
 
       await setVitalsFull(steamId);
       await sleep(delayMs);
 
       await interaction.editReply(
-        `✅ **${stored.name} restored!** 🧬\n⏳ ${progressBar(4, 4)}`
+        `✅ **${stored.name} restored!** 🧬\n⏳ ${progressBar(5, 4)}`
       );
       await setVitalsFull(steamId);
 
