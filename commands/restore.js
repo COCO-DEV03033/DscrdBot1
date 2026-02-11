@@ -84,7 +84,7 @@ module.exports = {
         title: "🧬 Restoring Dino...",
         description: "Please wait while growth stages are applied.",
         image: {
-          url: "../data/loading.gif"
+          url: "./data/loading.gif"
         },
         color: 0x00ff99
       };
@@ -110,6 +110,13 @@ module.exports = {
         `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(2, 4)}`, { embeds: [loadingEmbed] }
       );
 
+      await setGrowth(steamId, g2);
+      await sleep(delayMs);
+
+      await interaction.editReply(
+        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(3, 4)}`, { embeds: [loadingEmbed] }
+      );
+      
       await setGrowth(steamId, g2);
       await sleep(delayMs);
 
