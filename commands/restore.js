@@ -117,7 +117,7 @@ module.exports = {
         `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(3, 5)}`, { embeds: [loadingEmbed] }
       );
 
-      await setGrowth(steamId, g2);
+      await setGrowth(steamId, g3);
       await sleep(delayMs);
 
       await interaction.editReply(
@@ -151,3 +151,4 @@ module.exports = {
     }
   }
 };
+
