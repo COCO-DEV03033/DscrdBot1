@@ -1,14 +1,18 @@
 module.exports = {
   free: {
-    slots: 5,
+    slots: 2,
     minGrowth: 1.0
   },
-  tier2: {
-    slots: 10,
+  juvi : {
+    slots: 4,
+    minGrowth: 1.0
+  },
+  adult : {
+    slots: 6,
     minGrowth: 0.9
   },
-  tier3: {
-    slots: 15,
+  aelder : {
+    slots: 8,
     minGrowth: 0.7
   }
 };
