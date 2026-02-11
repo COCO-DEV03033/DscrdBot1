@@ -62,7 +62,7 @@ async function killDino(steamId) {
 }
 
 async function setGrowth(steamId, growth) {
-  return apiFetch("growth", { ...basePayload(steamId), growth: Number(growth) });
+  return apiFetch("grow", { ...basePayload(steamId), growth: Number(growth) });
 }
 
 async function setVitalsFull(steamId) {
@@ -89,3 +89,4 @@ async function stagedRestore(steamId) {
 }
 
 module.exports = { killDino, setGrowth, setVitalsFull, stagedRestore };
+
