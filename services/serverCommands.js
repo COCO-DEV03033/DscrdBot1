@@ -8,9 +8,9 @@ function assertEnv(name) {
 
 function sanitizeSteamId(id) {
   const s = String(id || "").replace(/\D/g, "");
-  if (s.length !== 17) {
-    throw new Error(`Steam ID must be exactly 17 digits (got "${id}")`);
-  }
+//  if (s.length !== 17) {
+//    throw new Error(`Steam ID must be exactly 17 digits (got "${id}")`);
+//  }
   return s;
 }
 
@@ -130,3 +130,4 @@ module.exports = {
   runRaw,
   runDietFull
 };
+
