@@ -1,18 +1,23 @@
 const { loadDB, saveDB, ensureProfile, ensureStorage, getLinkedSteamId } = require("../services/db");
-const { setGrowth, setVitalsFull } = require("../services/serverCommands");
+const { setGrowth, setVitalsFull, runDietFull } = require("../services/serverCommands");
 const { readPlayerJson, findOnlinePlayerBySteamId } = require("../services/playerData");
 
 function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms));
+  return new Promise((r) => setTimeout(r, ms));
 }
 
 function isDry() {
   return String(process.env.DRY_RUN_SERVER_COMMANDS || "") === "1";
 }
 
+function progressBar(step, total) {
+  const filled = Math.round((step / total) * 10);
+  return "█".repeat(filled) + "░".repeat(10 - filled);
+}
+
 module.exports = {
   name: "restore",
-  description: "🧬 Restore a stored dino (staged growth + vitals fill)",
+  description: "🧬 Restore a stored dino (staged growth + vitals + diet fill)",
   options: [
     {
       name: "dino_name",
@@ -22,133 +27,121 @@ module.exports = {
     }
   ],
 
-
   async execute(interaction) {
-    try {
-      await interaction.deferReply({ ephemeral: true });
+    // ✅ always defer immediately (prevents Unknown interaction)
+    await interaction.deferReply({ flags: 64 });
 
+    try {
       const dinoName = interaction.options.getString("dino_name");
 
       const db = loadDB();
-      const profile = ensureProfile(db, interaction.user.id);
+      ensureProfile(db, interaction.user.id);
       const storage = ensureStorage(db, interaction.user.id);
 
       const steamId = getLinkedSteamId(db, interaction.user.id);
       if (!steamId) {
-        return interaction.editReply("❌ You must /link your SteamID first! 🔗");
+        return interaction.editReply({ content: "❌ You must /link your SteamID first! 🔗" });
       }
 
       // Find stored dino
-      const idx = storage.findIndex(d => (d?.name || "").toLowerCase() === dinoName.toLowerCase());
+      const idx = storage.findIndex((d) => (d?.name || "").toLowerCase() === dinoName.toLowerCase());
       if (idx === -1) {
-        return interaction.editReply(`❌ Dino "${dinoName}" not found in your storage. 📦`);
+        return interaction.editReply({ content: `❌ Dino "${dinoName}" not found in your storage. 📦` });
       }
 
       const stored = storage[idx];
 
-      // Optional: verify player is online and class matches (only if you want strict)
-      // If PLAYER_JSON_PATH exists, we can enforce "must be logged in as same class"
+      // Optional: verify player is online and class matches
       if (process.env.PLAYER_JSON_PATH) {
         try {
           const playerJson = readPlayerJson(process.env.PLAYER_JSON_PATH);
           const online = findOnlinePlayerBySteamId(playerJson, steamId);
 
           if (!online) {
-            return interaction.editReply(
-              `❌ You are not listed as online right now.\n` +
-              `🎮 Join the server in-game, then try /restore again.\n` +
-              `🔗 SteamID: **${steamId}**`
-            );
+            return interaction.editReply({
+              content:
+                `❌ You are not listed as online right now.\n` +
+                `🎮 Join the server in-game, then try /restore again.\n` +
+                `🔗 SteamID: **${steamId}**`
+            });
           }
 
           if (stored.class && online.Class && stored.class !== online.Class) {
-            return interaction.editReply(
-              `❌ Wrong dino in-game.\n` +
-              `🦖 Stored: \`${stored.class}\`\n` +
-              `🎮 Current: \`${online.Class}\`\n\n` +
-              `➡️ Log in as the correct dino type, then run /restore again.`
-            );
+            return interaction.editReply({
+              content:
+                `❌ Wrong dino in-game.\n` +
+                `🦖 Stored: \`${stored.class}\`\n` +
+                `🎮 Current: \`${online.Class}\`\n\n` +
+                `➡️ Log in as the correct dino type, then run /restore again.`
+            });
           }
         } catch (e) {
-          // If local file missing or parsing fails, do not block restore
           console.log("⚠️ player.json check skipped:", e.message);
         }
       }
 
-      function progressBar(step, total) {
-        const filled = Math.round((step / total) * 10);
-        return "█".repeat(filled) + "░".repeat(10 - filled);
-      }
-
-      const loadingEmbed = {
-        title: "🧬 Restoring Dino...",
-        description: "Please wait while growth stages are applied.",
-        image: {
-          url: "./data/loading.gif"
-        },
-        color: 0x00ff99
-      };
-
-      // await interaction.editReply({ embeds: [loadingEmbed] });
-
-
-      // Pull staged growth settings from env (defaults)
+      // Growth settings
       const g1 = Number(process.env.RESTORE_GROWTH_1 || 0.33);
       const g2 = Number(process.env.RESTORE_GROWTH_2 || 0.54);
       const g3 = Number(process.env.RESTORE_GROWTH_3 || 0.65);
+
       const delayMs = Number(process.env.RESTORE_STEP_DELAY_SEC || 30) * 1000;
+      const vitalDelayMs = Number(process.env.RESTORE_VITAL_DELAY_SEC || 5) * 1000; // ✅ client: 5 sec
 
-      // Show progress (users hate waiting without feedback)
-      await interaction.editReply(
-        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(1, 5)}`, { embeds: [loadingEmbed] }
-      );
-
+      // Progress updates
+      await interaction.editReply({
+        content: `🧬 **Restoring ${stored.name}**...\n⏳ ${progressBar(1, 5)}  (Growth ${Math.round(g1 * 100)}%)`
+      });
       await setGrowth(steamId, g1);
       await sleep(delayMs);
 
-      await interaction.editReply(
-        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(2, 5)}`, { embeds: [loadingEmbed] }
-      );
-
+      await interaction.editReply({
+        content: `🧬 **Restoring ${stored.name}**...\n⏳ ${progressBar(2, 5)}  (Growth ${Math.round(g2 * 100)}%)`
+      });
       await setGrowth(steamId, g2);
       await sleep(delayMs);
 
-      await interaction.editReply(
-        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(3, 5)}`, { embeds: [loadingEmbed] }
-      );
-
+      await interaction.editReply({
+        content: `🧬 **Restoring ${stored.name}**...\n⏳ ${progressBar(3, 5)}  (Growth ${Math.round(g3 * 100)}%)`
+      });
       await setGrowth(steamId, g3);
       await sleep(delayMs);
 
-      await interaction.editReply(
-        `🧬 **Restoring ${stored.name}**... \n⏳ ${progressBar(4, 5)}`, { embeds: [loadingEmbed] }
-      );
+      await interaction.editReply({
+        content: `🍖 Filling vitals for **${stored.name}**...\n⏳ ${progressBar(4, 5)}`
+      });
 
       await setVitalsFull(steamId);
-      await sleep(delayMs);
 
-      await interaction.editReply(
-        `✅ **${stored.name} restored!** 🧬\n⏳ ${progressBar(5, 5)}`
-      );
-      await setVitalsFull(steamId);
+      // ✅ client: wait 5 seconds after vitals
+      await sleep(vitalDelayMs);
 
-      // Remove from storage
+      // ✅ client: run diet raw command right after vitals delay
+      await runDietFull(steamId);
+
+      // Remove from storage after successful restore
       storage.splice(idx, 1);
       db.storage[interaction.user.id] = storage;
       saveDB(db);
 
-      // Final message
       if (isDry()) {
-        return interaction.editReply(`✅ Restored **${stored.name}** 🧬 (TEST MODE).\n🧪 Server commands were skipped.\n📦 Removed from storage.`);
+        return interaction.editReply({
+          content:
+            `✅ Restored **${stored.name}** 🧬 (TEST MODE)\n` +
+            `🧪 Server commands were skipped.\n` +
+            `📦 Removed from storage.`
+        });
       }
 
-      return interaction.editReply(`✅ Restored **${stored.name}** 🧬 (growth staged + vitals filled). 🎉\n📦 Removed from storage.`);
+      return interaction.editReply({
+        content:
+          `✅ Restored **${stored.name}** 🧬 (growth staged + vitals + diet filled). 🎉\n` +
+          `📦 Removed from storage.\n` +
+          `⏳ ${progressBar(5, 5)}`
+      });
     } catch (err) {
       console.error(err);
-      try {
-        return interaction.editReply(`❌ Restore failed: ${err.message}`);
-      } catch { }
+      return interaction.editReply({ content: `❌ Restore failed: ${err.message}` });
     }
   }
 };
-
