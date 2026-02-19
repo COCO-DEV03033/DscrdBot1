@@ -22,6 +22,19 @@ const commands = [
   { name: "clear_storage", description: "🧹 Clear your stored dinos (testing)" },
 
   {
+    name: "price",
+    description: "🏷️ Show dino sell prices",
+    options: [
+      {
+        name: "dino_type",
+        type: 3,
+        description: "Optional: check one dino type (e.g. Tyrannosaurus)",
+        required: false
+      }
+    ]
+  },
+
+  {
     name: "store",
     description: "🦖 Store your current in-game dino (tier perks apply)",
     options: [
@@ -65,3 +78,4 @@ const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
     console.error("❌ Deploy failed:", err);
   }
 })();
+
