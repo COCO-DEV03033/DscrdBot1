@@ -28,7 +28,7 @@ module.exports = {
     }
 
     const dino = storage[idx];
-    const price = prices[dino.name] || prices[(dino.name || "").split(" #")[0]] || 100;
+    const price = prices[dino.class] || prices[(dino.class || "").split(" #")[0]] || 100;
 
     // Remove permanently
     storage.splice(idx, 1);
@@ -39,3 +39,4 @@ module.exports = {
     return interaction.editReply(`✅ Sold **${dino.name}** 🦖 for **${price}** 💰. Dino is gone forever.`);
   }
 };
+
